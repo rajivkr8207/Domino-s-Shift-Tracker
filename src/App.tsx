@@ -14,7 +14,7 @@ import { useMediaQuery } from "react-responsive";
 function App() {
   const { shifts, deleteShift } = useShift();
   const [toggleaddsift, setToggleaddsift] = useState<boolean>(false);
-  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [deleteIndex, setDeleteIndex] = useState<string | null>(null);
   const [deleteAllShift, setDeleteAllShift] = useState(false);
   const [closeclaculate, setCloseclaculate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -263,7 +263,7 @@ function App() {
                           </div>
                         </div>
                         <button
-                          onClick={() => setDeleteIndex(Number(shift.id))}
+                          onClick={() => setDeleteIndex(String(shift.id))}
                           className="text-red-400 p-1"
                         >
                           <FaTrash size={16} />
@@ -355,7 +355,7 @@ function App() {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => setDeleteIndex(Number(shift.id))}
+                              onClick={() => setDeleteIndex(String(shift.id))}
                               className="text-red-400 hover:text-red-600 transition-colors duration-200 p-2"
                             >
                               <FaTrash size={16} />
@@ -374,7 +374,7 @@ function App() {
 
       <ToastContainer
         position={isMobile ? "top-center" : "bottom-right"}
-        autoClose={3000}
+        autoClose={1500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

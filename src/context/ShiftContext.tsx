@@ -1,7 +1,6 @@
 // src/context/ShiftContext.tsx
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { toast } from "react-toastify"; // Make sure to install this package
-import "react-toastify/dist/ReactToastify.css";
 
 export interface Shift {
   id: string;
@@ -45,55 +44,23 @@ export const ShiftProvider = ({ children }: { children: ReactNode }) => {
     const shiftExists = shifts.some((existingShift) => existingShift.date === shift.date);
     
     if (shiftExists) {
-      toast.error(`A shift for ${shift.date} already exists!`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error(`A shift for ${shift.date} already exists!`)
       return;
     }
     
     setShifts((prev) => [...prev, shift]);
-    toast.success("Shift added successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    toast.success("Shift added successfully!");
   };
 
   const deleteShift = (id: string) => {
     setShifts((prev) => prev.filter((shift) => shift.id !== id));
-    toast.success("Shift deleted successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    toast.success("Shift deleted successfully!");
   };
 
   const handledeleteallshift = () => {
     localStorage.removeItem("shifts");
     setShifts([]);
-    toast.success("All shifts cleared successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    toast.success("All shifts cleared successfully!");
   };
 
   return (

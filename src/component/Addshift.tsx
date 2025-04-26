@@ -87,7 +87,6 @@ const AddShift = ({ setToggleaddsift }: { setToggleaddsift: React.Dispatch<React
     const realHours = calculateRealHours(startTime, endTime);
     
     addShift({ id, date, startTime, endTime, realHours });
-    toast.success("Shift added successfully!");
     
     setToggleaddsift(false);
   };
