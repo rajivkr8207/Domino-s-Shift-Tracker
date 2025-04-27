@@ -27,6 +27,7 @@ const shiftsdetail = [
   { label: "12:00 PM to 9:00 PM", startTime: "12:00", endTime: "21:00" },
   { label: "12:00 PM to 6:30 PM", startTime: "12:00", endTime: "18:30" },
   { label: "1:00 PM to 10:00 PM", startTime: "13:00", endTime: "22:00" },
+  { label: "2:00 PM to 8:30 PM", startTime: "14:00", endTime: "20:30" },
   { label: "Weekly Off", startTime: "00:00", endTime: "00:00" },
 ];
 
