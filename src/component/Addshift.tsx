@@ -139,6 +139,7 @@ const AddShift = ({ setToggleaddsift }: { setToggleaddsift: React.Dispatch<React
                   name="date"
                   value={formData.date}
                   onChange={handleChangeDate}
+                  max={new Date().toISOString().split("T")[0]}
                   className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
