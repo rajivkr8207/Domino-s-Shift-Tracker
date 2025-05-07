@@ -20,6 +20,7 @@ function calculateRealHours(startTime: string, endTime: string): number {
 }
 
 const shiftsdetail = [
+  { label: "Absent", startTime: "00:00", endTime: "00:00" },
   { label: "9:00 AM to 3:30 PM", startTime: "09:00", endTime: "15:30" },
   { label: "9:00 AM to 6:00 PM", startTime: "09:00", endTime: "18:00" },
   { label: "11:00 AM to 5:30 PM", startTime: "11:00", endTime: "17:30" },
@@ -29,6 +30,7 @@ const shiftsdetail = [
   { label: "1:00 PM to 10:00 PM", startTime: "13:00", endTime: "22:00" },
   { label: "2:00 PM to 8:30 PM", startTime: "14:00", endTime: "20:30" },
   { label: "Weekly Off", startTime: "00:00", endTime: "00:00" },
+
 ];
 
 const AddShift = ({ setToggleaddsift }: { setToggleaddsift: React.Dispatch<React.SetStateAction<boolean>> }) => {
@@ -139,7 +141,7 @@ const AddShift = ({ setToggleaddsift }: { setToggleaddsift: React.Dispatch<React
                   name="date"
                   value={formData.date}
                   onChange={handleChangeDate}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toISOString().split("T")[0]} 
                   className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
