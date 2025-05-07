@@ -1,6 +1,6 @@
 # Domino's Shift Tracker 🍕⏱️
 
-![App Screenshot](/public/screenshot.png) <!-- Add your screenshot path here -->
+![App Screenshot](/public/shiftimg.png) <!-- Add your screenshot path here -->
 
 A simple shift management application for Domino's Pizza employees to track their work hours and shifts.
 
