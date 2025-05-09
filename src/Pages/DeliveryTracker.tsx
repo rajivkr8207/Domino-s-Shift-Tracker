@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 interface Delivery {
   id: string;
   orderNo: number;
+  price: number;
   paymentMethod: "cash" | "online" | "both" | "qr";
   date: string;
   status: "pending" | "delivered" | "cancelled";
@@ -22,9 +23,11 @@ const DeliveryTracker = () => {
 
   const [formData, setFormData] = useState<{
     orderNo: number;
+    price: number;
     paymentMethod: "cash" | "online" | "both" | "qr";
   }>({
     orderNo: 0,
+    price: 0,
     paymentMethod: "cash",
   });
 
@@ -38,6 +41,10 @@ const DeliveryTracker = () => {
     setFormData({ ...formData, orderNo: Number(e.target.value) });
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, price: Number(e.target.value) });
+  };
+
   const handlePaymentMethodChange = (method: "cash" | "online" | "both" | "qr") => {
     setFormData({ ...formData, paymentMethod: method });
   };
@@ -47,10 +54,15 @@ const DeliveryTracker = () => {
       toast.error("Please enter an order number");
       return;
     }
+    if (!formData.price || formData.price <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
 
     const newDelivery: Delivery = {
       id: Date.now().toString(),
       orderNo: formData.orderNo,
+      price: formData.price,
       paymentMethod: formData.paymentMethod,
       date: new Date().toISOString().split('T')[0],
       status: "delivered",
@@ -58,7 +70,7 @@ const DeliveryTracker = () => {
 
     setDeliveries([...deliveries, newDelivery]);
     toast.success("Delivery added successfully!");
-    setFormData({ orderNo: 0, paymentMethod: "cash" });
+    setFormData({ orderNo: 0, price: 0, paymentMethod: "cash" });
   };
 
   const handleDeleteDelivery = (id: string) => {
@@ -69,6 +81,9 @@ const DeliveryTracker = () => {
   const handleNavigate = () => {
     navigate('/');
   };
+
+  // Calculate total price
+  const totalPrice = deliveries.reduce((sum, delivery) => sum + delivery.price, 0);
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
@@ -102,9 +117,22 @@ const DeliveryTracker = () => {
             </label>
             <input
               type="number"
-              value={formData.orderNo}
+              value={formData.orderNo || ""}
               onChange={handleInputChange}
               placeholder="Enter order number"
+              className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Price (₹)
+            </label>
+            <input
+              type="number"
+              value={formData.price || ""}
+              onChange={handlePriceChange}
+              placeholder="Enter price"
               className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
             />
           </div>
@@ -150,9 +178,19 @@ const DeliveryTracker = () => {
             Add Delivery
           </motion.button>
         </div>
-
+ {/* Total Price */}
+ {deliveries.length > 0 && (
+          <div className="border-t border-gray-700 p-4 bg-gray-900/50">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-medium text-gray-300">Total:</span>
+              <span className="text-xl font-bold text-green-400">
+                ₹{totalPrice.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
         {/* Deliveries List */}
-        <div className="border-t border-gray-700 max-h-[60vh] overflow-y-auto">
+        <div className="border-t border-gray-700 max-h-[50vh] overflow-y-auto">
           {deliveries.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               No deliveries recorded yet
@@ -180,17 +218,22 @@ const DeliveryTracker = () => {
                         })}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <PaymentBadge method={delivery.paymentMethod} />
-                      <StatusBadge status={delivery.status} />
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDeleteDelivery(delivery.id)}
-                        className="text-red-400 hover:text-red-500 transition-colors p-1"
-                      >
-                        <FaTrash className="text-lg" />
-                      </motion.button>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="text-lg font-bold text-green-400">
+                        ₹{delivery.price}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <PaymentBadge method={delivery.paymentMethod} />
+                        <StatusBadge status={delivery.status} />
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleDeleteDelivery(delivery.id)}
+                          className="text-red-400 hover:text-red-500 transition-colors p-1"
+                        >
+                          <FaTrash className="text-lg" />
+                        </motion.button>
+                      </div>
                     </div>
                   </div>
                 </motion.li>
@@ -198,12 +241,14 @@ const DeliveryTracker = () => {
             </ul>
           )}
         </div>
+
+       
       </motion.div>
     </div>
   );
 };
 
-// Helper Components
+// Helper Components (remain the same as before)
 const PaymentMethodButton = ({ icon, label, active, onClick }: { 
   icon: React.ReactNode, 
   label: string, 

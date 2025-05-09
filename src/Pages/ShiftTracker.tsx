@@ -17,6 +17,7 @@ import CalculateShift from "../component/CalculateShift";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 import { Link } from "react-router-dom";
+import DeliveryTracker from "./DeliveryTracker";
 
 const ShiftTracker = () => {
   const { shifts, deleteShift } = useShift();
@@ -58,6 +59,7 @@ const ShiftTracker = () => {
 
   return (
     <>
+    <DeliveryTracker />
       <AnimatePresence>
         {toggleaddsift && <AddShift setToggleaddsift={setToggleaddsift} />}
         {deleteAllShift && (
