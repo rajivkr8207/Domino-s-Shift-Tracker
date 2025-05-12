@@ -1,9 +1,15 @@
 // src/components/DeliveryTracker.tsx
 import { useState, useEffect } from "react";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { FaMotorcycle, FaMoneyBillWave, FaQrcode, FaCreditCard, FaTrash } from "react-icons/fa";
+import {
+  FaMotorcycle,
+  FaMoneyBillWave,
+  FaQrcode,
+  FaCreditCard,
+  FaTrash,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface Delivery {
@@ -31,6 +37,7 @@ const DeliveryTracker = () => {
     paymentMethod: "cash",
   });
 
+  const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,7 +52,9 @@ const DeliveryTracker = () => {
     setFormData({ ...formData, price: Number(e.target.value) });
   };
 
-  const handlePaymentMethodChange = (method: "cash" | "online" | "both" | "qr") => {
+  const handlePaymentMethodChange = (
+    method: "cash" | "online" | "both" | "qr"
+  ) => {
     setFormData({ ...formData, paymentMethod: method });
   };
 
@@ -64,7 +73,7 @@ const DeliveryTracker = () => {
       orderNo: formData.orderNo,
       price: formData.price,
       paymentMethod: formData.paymentMethod,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       status: "delivered",
     };
 
@@ -74,16 +83,29 @@ const DeliveryTracker = () => {
   };
 
   const handleDeleteDelivery = (id: string) => {
-    setDeliveries(deliveries.filter(delivery => delivery.id !== id));
+    setDeliveries(deliveries.filter((delivery) => delivery.id !== id));
     toast.success("Delivery deleted successfully!");
   };
 
   const handleNavigate = () => {
-    navigate('/');
+    navigate("/");
   };
 
-  // Calculate total price
-  const totalPrice = deliveries.reduce((sum, delivery) => sum + delivery.price, 0);
+  // Calculate prices
+  const totalPrice = deliveries.reduce(
+    (sum, delivery) => sum + delivery.price,
+    0
+  );
+  const cashPrice = deliveries.reduce(
+    (sum, delivery) =>
+      delivery.paymentMethod === "cash" ? sum + delivery.price : sum,
+    0
+  );
+  const onlinePrice = deliveries.reduce(
+    (sum, delivery) =>
+      delivery.paymentMethod === "online" ? sum + delivery.price : sum,
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
@@ -155,7 +177,12 @@ const DeliveryTracker = () => {
                 onClick={() => handlePaymentMethodChange("online")}
               />
               <PaymentMethodButton
-                icon={<><FaMoneyBillWave className="mr-1" /><FaCreditCard /></>}
+                icon={
+                  <>
+                    <FaMoneyBillWave className="mr-1" />
+                    <FaCreditCard />
+                  </>
+                }
                 label="Both"
                 active={formData.paymentMethod === "both"}
                 onClick={() => handlePaymentMethodChange("both")}
@@ -178,19 +205,62 @@ const DeliveryTracker = () => {
             Add Delivery
           </motion.button>
         </div>
- {/* Total Price */}
- {deliveries.length > 0 && (
-          <div className="border-t border-gray-700 p-4 bg-gray-900/50">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-medium text-gray-300">Total:</span>
-              <span className="text-xl font-bold text-green-400">
-                ₹{totalPrice.toFixed(2)}
-              </span>
+
+        {/* Summary Section */}
+        {deliveries.length > 0 && (
+          <div className="border-t border-gray-700">
+            <div className="p-4 bg-gray-900/50 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-green-400">
+                  ₹{totalPrice.toFixed(2)}
+                </span>
+                <span className="text-sm text-gray-400">
+                  {deliveries.length}{" "}
+                  {deliveries.length === 1 ? "delivery" : "deliveries"}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors"
+              >
+                {showDetails ? (
+                  <>
+                    <span className="text-sm">Hide details</span>
+                    <IoChevronUp />
+                  </>
+                ) : (
+                  <>
+                    <span className="text-sm">Show details</span>
+                    <IoChevronDown />
+                  </>
+                )}
+              </button>
             </div>
+
+            {/* Detailed Breakdown */}
+            {showDetails && (
+              <div className="bg-gray-900/30 p-4 space-y-3 border-t border-gray-800">
+                <PriceDetail
+                  label="Cash"
+                  value={cashPrice}
+                  icon={<FaMoneyBillWave className="text-yellow-400" />}
+                />
+                <PriceDetail
+                  label="Online"
+                  value={onlinePrice}
+                  icon={<FaCreditCard className="text-blue-400" />}
+                />
+              </div>
+            )}
           </div>
         )}
+
         {/* Deliveries List */}
-        <div className="border-t border-gray-700 max-h-[50vh] overflow-y-auto">
+        <div
+          className={`border-t border-gray-700 ${
+            deliveries.length > 0 ? "max-h-[40vh]" : ""
+          } overflow-y-auto`}
+        >
           {deliveries.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               No deliveries recorded yet
@@ -211,16 +281,16 @@ const DeliveryTracker = () => {
                         <span className="text-white">#{delivery.orderNo}</span>
                       </div>
                       <div className="text-sm text-gray-400 mt-1">
-                        {new Date(delivery.date).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric'
+                        {new Date(delivery.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
                         })}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <div className="text-lg font-bold text-green-400">
-                        ₹{delivery.price}
+                        ₹{delivery.price.toFixed(2)}
                       </div>
                       <div className="flex items-center gap-2">
                         <PaymentBadge method={delivery.paymentMethod} />
@@ -241,27 +311,49 @@ const DeliveryTracker = () => {
             </ul>
           )}
         </div>
-
-       
       </motion.div>
     </div>
   );
 };
 
-// Helper Components (remain the same as before)
-const PaymentMethodButton = ({ icon, label, active, onClick }: { 
-  icon: React.ReactNode, 
-  label: string, 
-  active: boolean, 
-  onClick: () => void 
+// New PriceDetail component
+const PriceDetail = ({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+}) => (
+  <div className="flex justify-between items-center">
+    <div className="flex items-center gap-2 text-gray-300">
+      {icon}
+      <span>{label}</span>
+    </div>
+    <span className="font-medium text-green-500">₹{value.toFixed(2)}</span>
+  </div>
+);
+
+// Rest of the helper components remain the same...
+const PaymentMethodButton = ({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
 }) => (
   <motion.button
     whileTap={{ scale: 0.95 }}
     onClick={onClick}
     className={`p-3 rounded-lg border flex items-center justify-center gap-2 transition-colors ${
-      active 
-        ? 'bg-green-900/30 border-green-600 text-green-400' 
-        : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+      active
+        ? "bg-green-900/30 border-green-600 text-green-400"
+        : "bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
     }`}
   >
     {icon}
@@ -269,16 +361,33 @@ const PaymentMethodButton = ({ icon, label, active, onClick }: {
   </motion.button>
 );
 
-const PaymentBadge = ({ method }: { method: "cash" | "online" | "both" | "qr" }) => {
+const PaymentBadge = ({
+  method,
+}: {
+  method: "cash" | "online" | "both" | "qr";
+}) => {
   const config = {
-    cash: { icon: <FaMoneyBillWave />, color: "bg-yellow-900/30 text-yellow-400" },
+    cash: {
+      icon: <FaMoneyBillWave />,
+      color: "bg-yellow-900/30 text-yellow-400",
+    },
     online: { icon: <FaCreditCard />, color: "bg-blue-900/30 text-blue-400" },
-    both: { icon: <><FaMoneyBillWave /><FaCreditCard /></>, color: "bg-purple-900/30 text-purple-400" },
-    qr: { icon: <FaQrcode />, color: "bg-teal-900/30 text-teal-400" }
+    both: {
+      icon: (
+        <>
+          <FaMoneyBillWave />
+          <FaCreditCard />
+        </>
+      ),
+      color: "bg-purple-900/30 text-purple-400",
+    },
+    qr: { icon: <FaQrcode />, color: "bg-teal-900/30 text-teal-400" },
   };
 
   return (
-    <span className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${config[method].color}`}>
+    <span
+      className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${config[method].color}`}
+    >
       {config[method].icon}
       {method}
     </span>
