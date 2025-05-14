@@ -9,6 +9,8 @@ import {
   FaQrcode,
   FaCreditCard,
   FaTrash,
+  FaCheckCircle,
+  FaTimesCircle
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -16,9 +18,10 @@ interface Delivery {
   id: string;
   orderNo: number;
   price: number;
-  paymentMethod: "cash" | "online" | "both" | "qr";
+  paymentMethod: "cash" | "online" | "both" | "qr" | "none";
   date: string;
   status: "pending" | "delivered" | "cancelled";
+  isPaid: boolean;
 }
 
 const DeliveryTracker = () => {
@@ -30,11 +33,13 @@ const DeliveryTracker = () => {
   const [formData, setFormData] = useState<{
     orderNo: number;
     price: number;
-    paymentMethod: "cash" | "online" | "both" | "qr";
+    paymentMethod: "cash" | "online" | "both" | "qr" | "none";
+    isPaid: boolean;
   }>({
     orderNo: 0,
     price: 0,
-    paymentMethod: "cash",
+    paymentMethod: "none",
+    isPaid: false,
   });
 
   const [showDetails, setShowDetails] = useState(false);
@@ -53,9 +58,18 @@ const DeliveryTracker = () => {
   };
 
   const handlePaymentMethodChange = (
-    method: "cash" | "online" | "both" | "qr"
+    method: "cash" | "online" | "both" | "qr" | "none"
   ) => {
     setFormData({ ...formData, paymentMethod: method });
+  };
+
+  const handlePaymentStatusChange = (isPaid: boolean) => {
+    setFormData({
+      ...formData,
+      isPaid,
+      paymentMethod: isPaid ? "none" : "cash", // Default to cash if unpaid
+      price: isPaid ? 0 : formData.price // Reset price if paid
+    });
   };
 
   const handleAddDelivery = () => {
@@ -63,23 +77,33 @@ const DeliveryTracker = () => {
       toast.error("Please enter an order number");
       return;
     }
-    if (!formData.price || formData.price <= 0) {
+    if (!formData.isPaid && (!formData.price || formData.price <= 0)) {
       toast.error("Please enter a valid price");
+      return;
+    }
+    if (!formData.isPaid && formData.paymentMethod === "none") {
+      toast.error("Please select a payment method");
       return;
     }
 
     const newDelivery: Delivery = {
       id: Date.now().toString(),
       orderNo: formData.orderNo,
-      price: formData.price,
-      paymentMethod: formData.paymentMethod,
+      price: formData.isPaid ? 0 : formData.price,
+      paymentMethod: formData.isPaid ? "none" : formData.paymentMethod,
       date: new Date().toISOString().split("T")[0],
       status: "delivered",
+      isPaid: formData.isPaid,
     };
 
     setDeliveries([...deliveries, newDelivery]);
     toast.success("Delivery added successfully!");
-    setFormData({ orderNo: 0, price: 0, paymentMethod: "cash" });
+    setFormData({ 
+      orderNo: 0, 
+      price: 0, 
+      paymentMethod: "none",
+      isPaid: false 
+    });
   };
 
   const handleDeleteDelivery = (id: string) => {
@@ -93,19 +117,21 @@ const DeliveryTracker = () => {
 
   // Calculate prices
   const totalPrice = deliveries.reduce(
-    (sum, delivery) => sum + delivery.price,
+    (sum, delivery) => sum + (delivery.isPaid ? 0 : delivery.price),
     0
   );
   const cashPrice = deliveries.reduce(
     (sum, delivery) =>
-      delivery.paymentMethod === "cash" ? sum + delivery.price : sum,
+      !delivery.isPaid && delivery.paymentMethod === "cash" ? sum + delivery.price : sum,
     0
   );
   const onlinePrice = deliveries.reduce(
     (sum, delivery) =>
-      delivery.paymentMethod === "online" ? sum + delivery.price : sum,
+      !delivery.isPaid && delivery.paymentMethod === "online" ? sum + delivery.price : sum,
     0
   );
+  const paidOrders = deliveries.filter(delivery => delivery.isPaid).length;
+  const unpaidOrders = deliveries.filter(delivery => !delivery.isPaid).length;
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
@@ -146,55 +172,91 @@ const DeliveryTracker = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Price (₹)
+          {/* Payment Status Toggle */}
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-300">
+              Payment Status
             </label>
-            <input
-              type="number"
-              value={formData.price || ""}
-              onChange={handlePriceChange}
-              placeholder="Enter price"
-              className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-3">
-              Payment Method
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <PaymentMethodButton
-                icon={<FaMoneyBillWave />}
-                label="Cash"
-                active={formData.paymentMethod === "cash"}
-                onClick={() => handlePaymentMethodChange("cash")}
-              />
-              <PaymentMethodButton
-                icon={<FaCreditCard />}
-                label="Online"
-                active={formData.paymentMethod === "online"}
-                onClick={() => handlePaymentMethodChange("online")}
-              />
-              <PaymentMethodButton
-                icon={
-                  <>
-                    <FaMoneyBillWave className="mr-1" />
-                    <FaCreditCard />
-                  </>
-                }
-                label="Both"
-                active={formData.paymentMethod === "both"}
-                onClick={() => handlePaymentMethodChange("both")}
-              />
-              <PaymentMethodButton
-                icon={<FaQrcode />}
-                label="QR Code"
-                active={formData.paymentMethod === "qr"}
-                onClick={() => handlePaymentMethodChange("qr")}
-              />
+            <div className="flex gap-4">
+              <button
+                onClick={() => handlePaymentStatusChange(true)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                  formData.isPaid
+                    ? "bg-green-900/30 text-green-400"
+                    : "bg-gray-700 text-gray-300"
+                }`}
+              >
+                <FaCheckCircle />
+                Paid
+              </button>
+              <button
+                onClick={() => handlePaymentStatusChange(false)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                  !formData.isPaid
+                    ? "bg-red-900/30 text-red-400"
+                    : "bg-gray-700 text-gray-300"
+                }`}
+              >
+                <FaTimesCircle />
+                Unpaid
+              </button>
             </div>
           </div>
+
+          {/* Conditional fields for unpaid orders */}
+          {!formData.isPaid && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Price (₹)
+                </label>
+                <input
+                  type="number"
+                  value={formData.price || ""}
+                  onChange={handlePriceChange}
+                  placeholder="Enter price"
+                  className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-3">
+                  Payment Method
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <PaymentMethodButton
+                    icon={<FaMoneyBillWave />}
+                    label="Cash"
+                    active={formData.paymentMethod === "cash"}
+                    onClick={() => handlePaymentMethodChange("cash")}
+                  />
+                  <PaymentMethodButton
+                    icon={<FaCreditCard />}
+                    label="Online"
+                    active={formData.paymentMethod === "online"}
+                    onClick={() => handlePaymentMethodChange("online")}
+                  />
+                  <PaymentMethodButton
+                    icon={
+                      <>
+                        <FaMoneyBillWave className="mr-1" />
+                        <FaCreditCard />
+                      </>
+                    }
+                    label="Both"
+                    active={formData.paymentMethod === "both"}
+                    onClick={() => handlePaymentMethodChange("both")}
+                  />
+                  <PaymentMethodButton
+                    icon={<FaQrcode />}
+                    label="QR Code"
+                    active={formData.paymentMethod === "qr"}
+                    onClick={() => handlePaymentMethodChange("qr")}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -212,11 +274,7 @@ const DeliveryTracker = () => {
             <div className="p-4 bg-gray-900/50 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-green-400">
-                  ₹{totalPrice.toFixed(2)}
-                </span>
-                <span className="text-sm text-gray-400">
-                  {deliveries.length}{" "}
-                  {deliveries.length === 1 ? "delivery" : "deliveries"}
+                  {paidOrders} Paid • {unpaidOrders} Unpaid
                 </span>
               </div>
               <button
@@ -241,15 +299,28 @@ const DeliveryTracker = () => {
             {showDetails && (
               <div className="bg-gray-900/30 p-4 space-y-3 border-t border-gray-800">
                 <PriceDetail
-                  label="Cash"
+                  label="Total Unpaid Amount"
+                  value={totalPrice}
+                  icon={<FaMoneyBillWave className="text-yellow-400" />}
+                />
+                <PriceDetail
+                  label="Cash Payments"
                   value={cashPrice}
                   icon={<FaMoneyBillWave className="text-yellow-400" />}
                 />
                 <PriceDetail
-                  label="Online"
+                  label="Online Payments"
                   value={onlinePrice}
                   icon={<FaCreditCard className="text-blue-400" />}
                 />
+                <div className="pt-2 border-t border-gray-700">
+                  <PriceDetail
+                    label="Paid Orders"
+                    value={paidOrders}
+                    icon={<FaCheckCircle className="text-green-400" />}
+                    isCount={true}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -279,6 +350,15 @@ const DeliveryTracker = () => {
                       <div className="font-medium flex items-center gap-2">
                         <FaMotorcycle className="text-green-500" />
                         <span className="text-white">#{delivery.orderNo}</span>
+                        {delivery.isPaid ? (
+                          <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full">
+                            Paid
+                          </span>
+                        ) : (
+                          <span className="text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded-full">
+                            Unpaid
+                          </span>
+                        )}
                       </div>
                       <div className="text-sm text-gray-400 mt-1">
                         {new Date(delivery.date).toLocaleDateString("en-US", {
@@ -289,11 +369,15 @@ const DeliveryTracker = () => {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <div className="text-lg font-bold text-green-400">
-                        ₹{delivery.price.toFixed(2)}
-                      </div>
+                      {!delivery.isPaid && (
+                        <div className="text-lg font-bold text-green-400">
+                          ₹{delivery.price.toFixed(2)}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
-                        <PaymentBadge method={delivery.paymentMethod} />
+                        {!delivery.isPaid && (
+                          <PaymentBadge method={delivery.paymentMethod} />
+                        )}
                         <StatusBadge status={delivery.status} />
                         <motion.button
                           whileHover={{ scale: 1.1 }}
@@ -316,22 +400,26 @@ const DeliveryTracker = () => {
   );
 };
 
-// New PriceDetail component
+// Updated PriceDetail component
 const PriceDetail = ({
   label,
   value,
   icon,
+  isCount = false,
 }: {
   label: string;
   value: number;
   icon: React.ReactNode;
+  isCount?: boolean;
 }) => (
   <div className="flex justify-between items-center">
     <div className="flex items-center gap-2 text-gray-300">
       {icon}
       <span>{label}</span>
     </div>
-    <span className="font-medium text-green-500">₹{value.toFixed(2)}</span>
+    <span className={`font-medium ${isCount ? 'text-white' : 'text-green-500'}`}>
+      {isCount ? value : `₹${value.toFixed(2)}`}
+    </span>
   </div>
 );
 
@@ -364,7 +452,7 @@ const PaymentMethodButton = ({
 const PaymentBadge = ({
   method,
 }: {
-  method: "cash" | "online" | "both" | "qr";
+  method: "cash" | "online" | "both" | "qr" | "none";
 }) => {
   const config = {
     cash: {
@@ -382,6 +470,7 @@ const PaymentBadge = ({
       color: "bg-purple-900/30 text-purple-400",
     },
     qr: { icon: <FaQrcode />, color: "bg-teal-900/30 text-teal-400" },
+    none: { icon: <FaCheckCircle />, color: "bg-green-900/30 text-green-400" },
   };
 
   return (
