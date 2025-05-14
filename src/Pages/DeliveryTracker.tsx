@@ -38,7 +38,7 @@ const DeliveryTracker = () => {
   }>({
     orderNo: 0,
     price: 0,
-    paymentMethod: "none",
+    paymentMethod: "cash",
     isPaid: false,
   });
 
@@ -58,7 +58,7 @@ const DeliveryTracker = () => {
   };
 
   const handlePaymentMethodChange = (
-    method: "cash" | "online" | "both" | "qr" | "none"
+    method: "cash" | "online" | "both" | "qr"
   ) => {
     setFormData({ ...formData, paymentMethod: method });
   };
