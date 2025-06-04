@@ -24,7 +24,7 @@ const ShiftTracker = () => {
   const [closeclaculate, setCloseclaculate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [_, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
@@ -42,8 +42,8 @@ const ShiftTracker = () => {
   const cancelDelete = () => {
     setDeleteIndex(null);
   };
-
   if (isLoading) {
+
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <motion.div

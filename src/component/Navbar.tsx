@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, _] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
