@@ -23,6 +23,7 @@ const ShiftTracker = () => {
   const [deleteAllShift, setDeleteAllShift] = useState(false);
   const [closeclaculate, setCloseclaculate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
@@ -77,7 +78,7 @@ const ShiftTracker = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-gray-800 rounded-lg p-4 mb-6 shadow-lg"
+              className="bg-gray-800 rounded-lg p-4 mb-6 shadow-lg  lg:hidden"
             >
              
               <motion.button

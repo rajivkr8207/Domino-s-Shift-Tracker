@@ -1,4 +1,3 @@
-import React from 'react'
 import DeliveryTracker from './DeliveryTracker'
 import ShiftTracker from './ShiftTracker'
 

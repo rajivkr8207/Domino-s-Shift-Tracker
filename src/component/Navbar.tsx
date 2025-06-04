@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -30,7 +31,7 @@ const Navbar = () => {
           <Link to="/shift" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">ShiftTracker</Link>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="lg:hidden flex items-center space-x-4">
        
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-gray-800 dark:text-gray-200">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
