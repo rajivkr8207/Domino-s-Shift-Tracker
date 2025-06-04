@@ -8,8 +8,6 @@ import {
   FaPlus,
   FaCalculator,
   FaHistory,
-  FaBars,
-  FaTimes,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import DeleteAllShift from "../component/DeleteAllShift";
@@ -17,7 +15,6 @@ import CalculateShift from "../component/CalculateShift";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 import { Link } from "react-router-dom";
-import DeliveryTracker from "./DeliveryTracker";
 
 const ShiftTracker = () => {
   const { shifts, deleteShift } = useShift();
@@ -59,7 +56,6 @@ const ShiftTracker = () => {
 
   return (
     <>
-    <DeliveryTracker />
       <AnimatePresence>
         {toggleaddsift && <AddShift setToggleaddsift={setToggleaddsift} />}
         {deleteAllShift && (
@@ -75,35 +71,15 @@ const ShiftTracker = () => {
 
       <div className="min-h-screen bg-gray-950 text-white p-4">
         <div className="max-w-6xl mx-auto">
-          {/* Mobile Header */}
-          {isMobile && (
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                Shift Tracker
-              </h1>
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-gray-400"
-              >
-                {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-              </button>
-            </div>
-          )}
 
           {/* Mobile Menu */}
-          {isMobile && mobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className="bg-gray-800 rounded-lg p-4 mb-6 shadow-lg"
             >
-              <Link
-                to="/delivery"
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-3 rounded-lg font-bold uppercase tracking-wide mb-3"
-              >
-                Delivery{" "}
-              </Link>
+             
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
@@ -141,7 +117,6 @@ const ShiftTracker = () => {
                 </motion.button>
               </div>
             </motion.div>
-          )}
 
           {/* Desktop Header */}
           {!isMobile && (

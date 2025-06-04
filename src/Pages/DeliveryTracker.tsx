@@ -133,13 +133,18 @@ const DeliveryTracker = () => {
   const paidOrders = deliveries.filter(delivery => delivery.isPaid).length;
   const unpaidOrders = deliveries.filter(delivery => !delivery.isPaid).length;
 
+  const handleclearall = ()=>{
+    setDeliveries([]);
+    localStorage.removeItem("deliveries");
+    toast.success("All deliveries cleared successfully!");
+  }
   return (
     <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-800 border border-gray-700 rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+        className="bg-gray-800 border border-gray-700 rounded-2xl shadow-xl w-full max-w-md overflow-hidden "
       >
         {/* Header */}
         <div className="p-6 border-b border-gray-700 relative">
@@ -395,6 +400,20 @@ const DeliveryTracker = () => {
             </ul>
           )}
         </div>
+        {deliveries.length > 0 && (
+
+          <div className="flex justify-center ">
+        <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleclearall}
+            className="mx-auto px-3 my-2 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg shadow-lg hover:shadow-green-900/30 transition-all"
+            >
+           clear all
+
+          </motion.button>
+        </div>
+          )}
       </motion.div>
     </div>
   );

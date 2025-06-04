@@ -3,6 +3,9 @@ import ShiftTracker from './Pages/ShiftTracker'
 import DeliveryTracker from './Pages/DeliveryTracker'
 import { ToastContainer } from 'react-toastify'
 import { useMediaQuery } from 'react-responsive'
+import PaymentCheckout from './Pages/PaymentCheckout'
+import Navbar from './component/Navbar'
+import Main from './Pages/Main'
 
 const App = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -10,9 +13,13 @@ const App = () => {
   return (
     <>
      <BrowserRouter>
+     <Navbar />
      <Routes>
-      <Route path="/" element={<ShiftTracker />} />
+      <Route path="/" element={<Main />} />
       <Route path="/delivery" element={<DeliveryTracker />} />
+      <Route path="/checkout" element={<PaymentCheckout />} />
+      <Route path="/shift" element={<ShiftTracker />} />
+     
      </Routes>
      </BrowserRouter>
      <ToastContainer
